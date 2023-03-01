@@ -17,10 +17,14 @@ inputs:
     required: false
     default: ""
   resolve-dep-from-path:
-    description: "If the dependency file is located inside the folder specified by path" 
+    description: "If the dependency file is located inside the folder specified by path"
     type: boolean
     required: false
-    default: true 
+    default: true
+  config-file:
+    description: "astro config file name"
+    required: false
+    default: "astro.config.mjs"
 
 runs:
   using: composite
@@ -36,10 +40,10 @@ runs:
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
-        elif [ $(find "." -name "yarn.lock") ]; then 
+        elif [ $(find "." -name "yarn.lock") ]; then
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
-        elif [ $(find "." -name "package-lock.json") ]; then 
+        elif [ $(find "." -name "package-lock.json") ]; then
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
         else
@@ -55,7 +59,7 @@ runs:
 
     - name: Setup Node
       uses: actions/setup-node@v3
-      if: inputs.resolve-dep-from-path == true 
+      if: inputs.resolve-dep-from-path == true
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
@@ -63,7 +67,7 @@ runs:
 
     - name: Setup Node
       uses: actions/setup-node@v3
-      if: inputs.resolve-dep-from-path == false 
+      if: inputs.resolve-dep-from-path == false
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
@@ -78,7 +82,7 @@ runs:
       shell: "bash"
       run: |
         cd ${{ inputs.path }}
-        $PACKAGE_MANAGER run build
+        $PACKAGE_MANAGER run build --config ${{ inputs.config-file }}
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
